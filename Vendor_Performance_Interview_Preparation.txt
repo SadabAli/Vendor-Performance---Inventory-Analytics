@@ -1,0 +1,879 @@
+VENDOR PERFORMANCE & INVENTORY ANALYTICS
+INTERVIEW PREPARATION
+============================================================
+
+PROJECT
+-------
+Vendor Performance & Inventory Analytics
+
+TECH STACK
+----------
+MySQL
+Python
+Pandas
+NumPy
+Statistical Analysis
+SciPy
+Power BI
+DAX
+
+DATABASE
+--------
+MySQL database: vendor
+
+RAW TABLES
+----------
+begin_inventory
+end_inventory
+purchase_prices
+purchases
+sales
+vendor_invoice
+
+MAIN ANALYTICAL TABLE
+---------------------
+vendor_sales_summary
+
+
+============================================================
+1. 60-SECOND PROJECT EXPLANATION
+============================================================
+
+"I worked on a Vendor Performance and Inventory Analytics project using MySQL,
+Python, and Power BI. The objective was to understand vendor sales and
+purchasing performance, profitability, inventory turnover, unsold capital,
+product performance, and supplier concentration.
+
+I first loaded the raw datasets into MySQL and used SQL for database-level
+aggregation and analysis. I then used Python and Pandas for data validation,
+EDA, correlation analysis, and statistical testing. After that, I created a
+summarized analytical dataset and built a Power BI report using DAX.
+
+The analysis identified low-sales high-margin brands, concentrated purchasing
+among the top vendors, bulk-purchasing cost differences, slow-moving inventory,
+and statistically different profit-margin behavior between vendor groups.
+
+The final goal was to help management decide where to improve pricing,
+purchasing, inventory, and vendor strategy."
+
+
+============================================================
+2. BUSINESS PROBLEM
+============================================================
+
+The business needs to control profitability and working capital while
+maintaining strong vendor and product performance.
+
+The project focuses on five main problems:
+
+1. Identify low-sales, high-margin brands that may need pricing or promotional
+   attention.
+
+2. Identify top vendors contributing to sales and gross profit.
+
+3. Understand whether bulk purchasing is associated with lower unit cost.
+
+4. Identify low inventory turnover and capital tied up in unsold inventory.
+
+5. Compare profitability behavior between high-performing and low-performing
+   vendor groups.
+
+
+============================================================
+3. BUSINESS QUESTIONS
+============================================================
+
+Q1. Which vendors contribute the most sales?
+
+Q2. Which vendors contribute the most purchase spend?
+
+Q3. Which products/brands have high margins but low sales?
+
+Q4. How much capital is tied up in unsold inventory?
+
+Q5. Which vendors have low stock turnover?
+
+Q6. Does purchase quantity relate to purchase unit cost?
+
+Q7. Is there a difference in profit margin between top- and low-performing
+    vendors?
+
+Q8. Are purchasing decisions concentrated among a small number of vendors?
+
+Q9. Which vendors/products should management investigate first?
+
+Q10. What actions can improve profitability without creating excess inventory?
+
+
+============================================================
+4. DATASET UNDERSTANDING
+============================================================
+
+begin_inventory
+---------------
+Beginning inventory by store/product.
+
+end_inventory
+-------------
+Ending inventory by store/product.
+
+purchase_prices
+---------------
+Product-level purchase/actual pricing and vendor information.
+
+purchases
+---------
+Purchase transactions including vendor, PO, dates, quantity, purchase price,
+and purchase dollars.
+
+sales
+-----
+Sales transactions including store, brand, quantity, sales dollars, sales
+price, date, vendor, and excise tax.
+
+vendor_invoice
+--------------
+Vendor invoice-level information including invoice dates, PO information,
+quantity, dollars, freight, and approval.
+
+
+============================================================
+5. GRAIN — VERY IMPORTANT
+============================================================
+
+Grain means what one row represents.
+
+begin_inventory:
+One row represents an inventory record.
+
+end_inventory:
+One row represents an ending inventory record.
+
+purchases:
+One row represents a purchase transaction/item record.
+
+sales:
+One row represents a sales record.
+
+vendor_invoice:
+One row represents an invoice record.
+
+purchase_prices:
+One row represents a product/vendor pricing record.
+
+Why this matters:
+
+A table can have repeated VendorNumber, Brand, InventoryId, or PONumber values
+without being a duplicate row.
+
+Never say:
+"Same vendor appears many times, so I removed duplicates."
+
+Instead:
+"I checked duplicates at the appropriate business grain."
+
+
+============================================================
+6. MYSQL ROLE
+============================================================
+
+MySQL is the database and SQL analysis layer.
+
+Used for:
+
+- Storing the six raw tables
+- Filtering and aggregating large data
+- Joining related tables
+- Creating summarized analytical data
+- Preparing data for Python and BI
+
+Why SQL:
+
+The sales table contains more than 12.8M rows and the purchases table more than
+2.37M rows in the current files. SQL is appropriate for reducing these large
+tables to the smaller datasets needed for analysis.
+
+
+============================================================
+7. PYTHON ROLE
+============================================================
+
+Python/Pandas was used for:
+
+- Data profiling
+- Missing-value checks
+- Exact duplicate checks
+- Numeric validation
+- Date validation
+- Business-rule validation
+- Correlation analysis
+- Exploratory analysis
+- Statistical testing
+
+Important project validation results:
+
+- Exact duplicate rows: 0 in all six datasets checked.
+- No negative values in the selected numeric checks.
+- No invalid dates found during date conversion.
+- SalesDollars matched SalesQuantity × SalesPrice within the 0.01 tolerance.
+- Purchases Dollars matched Quantity × PurchasePrice within the 0.01 tolerance.
+
+
+============================================================
+8. DATA QUALITY FINDINGS
+============================================================
+
+Missing values identified:
+
+end_inventory:
+City = 1,284 missing
+
+purchase_prices:
+Description = 1 missing
+Size = 1 missing
+Volume = 1 missing
+
+purchases:
+Size = 3 missing
+
+vendor_invoice:
+Approval = 5,169 missing
+
+Important interpretation:
+
+These values were not automatically deleted or replaced. Missing values need
+business context before cleaning.
+
+Example:
+Approval is missing for most vendor_invoice rows, so "missing" may represent
+unavailable approval information rather than a data-entry error.
+
+
+============================================================
+9. KEY EDA FINDINGS
+============================================================
+
+Gross Profit:
+Minimum reported value = -52,002.78.
+
+Meaning:
+Some records can produce losses where costs exceed sales value.
+
+Profit Margin:
+Extreme negative values occur when revenue is zero or very low relative to
+cost.
+
+Zero Sales:
+Some products have zero sales.
+
+Meaning:
+Possible slow-moving or unsold inventory.
+
+Purchase Price:
+Maximum reported value = 5,681.81.
+
+Actual Price:
+Maximum reported value = 7,499.99.
+
+Meaning:
+The dataset contains a wide product-price range and premium products.
+
+Freight:
+Reported range = 0.09 to 257,032.07.
+
+Meaning:
+Freight cost varies greatly across records.
+
+Stock Turnover:
+Reported range = 0 to 274.5.
+
+Meaning:
+Some products move slowly while others have much higher sales relative to
+purchases.
+
+
+============================================================
+10. CORRELATION FINDINGS
+============================================================
+
+Purchase Price vs Total Sales Dollars:
+-0.012
+
+Interpretation:
+Very weak linear relationship in the analyzed data.
+
+Purchase Price vs Gross Profit:
+-0.016
+
+Interpretation:
+Very weak relationship.
+
+Total Purchase Quantity vs Total Sales Quantity:
+0.999
+
+Interpretation:
+Extremely strong association in the analyzed data.
+
+Profit Margin vs Total Sales Price:
+-0.179
+
+Interpretation:
+Moderate-to-weak negative relationship in the reported analysis.
+
+Stock Turnover vs Gross Profit:
+-0.038
+
+Stock Turnover vs Profit Margin:
+-0.055
+
+Interpretation:
+Weak relationships.
+
+IMPORTANT:
+Correlation does not prove causation.
+
+
+============================================================
+11. MAIN KPIs
+============================================================
+
+TOTAL SALES
+-----------
+Sum of TotalSalesDollars.
+
+Question:
+How much sales value was generated?
+
+TOTAL PURCHASE
+--------------
+Sum of TotalPurchaseDollars.
+
+Question:
+How much was spent on purchases?
+
+GROSS PROFIT
+------------
+Sales - Purchase Cost.
+
+Question:
+How much gross profit remains after purchase cost?
+
+GROSS MARGIN %
+--------------
+Gross Profit / Sales × 100.
+
+Question:
+What proportion of sales value remains as gross profit?
+
+UNSOLD CAPITAL
+--------------
+(Purchased Quantity - Sales Quantity) × Purchase Price
+
+Question:
+How much purchase-cost capital is associated with quantity that has not sold,
+based on the project calculation?
+
+STOCK TURNOVER
+--------------
+Sales Quantity / Purchase Quantity
+
+Question:
+How quickly is purchased quantity moving relative to purchased quantity?
+
+SALES-TO-PURCHASE RATIO
+-----------------------
+Sales Dollars / Purchase Dollars
+
+Question:
+How much sales value is generated relative to purchase spend?
+
+
+============================================================
+12. IMPORTANT POWER BI / DAX LOGIC
+============================================================
+
+Gross Margin %:
+
+DIVIDE(
+    SUM('vendor vendor_sales_summary'[GrossProfit]),
+    SUM('vendor vendor_sales_summary'[TotalSalesDollars])
+)
+
+Why this is better than simply averaging row-level profit percentages:
+
+A simple average gives every row equal weight. A business-level margin should
+be based on total gross profit relative to total sales.
+
+Unsold Capital:
+
+(
+    TotalPurchaseQuantity - TotalSalesQuantity
+)
+× PurchasePrice
+
+
+TARGET BRAND
+------------
+
+A product/brand is flagged as "Yes" when:
+
+- Total Sales is at or below the 15th percentile.
+- Average Profit Margin is at or above the 85th percentile.
+
+Business meaning:
+
+Low sales + high margin may indicate an opportunity to improve volume without
+immediately sacrificing profitability.
+
+
+LOW-PERFORMING VENDOR
+---------------------
+StockTurnover < 1
+
+Business meaning:
+
+The project uses this threshold to identify vendors associated with slower
+inventory movement.
+
+
+============================================================
+13. BUSINESS FINDING: 198 BRANDS
+============================================================
+
+The analysis identified:
+
+198 low-sales, high-margin brands.
+
+Interpretation:
+
+These brands may have room for:
+
+- Targeted promotions
+- Better distribution
+- Pricing optimization
+- Marketing support
+
+Do not claim that these actions will definitely increase sales. They are
+recommended areas to investigate.
+
+
+============================================================
+14. BUSINESS FINDING: VENDOR CONCENTRATION
+============================================================
+
+Top 10 vendors contribute:
+
+65.69% of total purchases.
+
+Remaining vendors:
+
+34.31%.
+
+Business meaning:
+
+Purchasing is concentrated among a relatively small group of vendors.
+
+Risk:
+High supplier dependency can increase exposure to supply disruption.
+
+Recommended response:
+Review supplier diversification and dependency risk.
+
+
+============================================================
+15. BUSINESS FINDING: BULK PURCHASING
+============================================================
+
+Reported result:
+
+72% lower unit cost for the compared large-order group.
+
+Observed unit cost:
+About $10.78 per unit.
+
+Business meaning:
+
+Larger purchase quantities may be associated with lower unit cost.
+
+Important interview caution:
+This is an observational analysis. Do not say:
+"Bulk purchasing causes lower cost."
+
+Better:
+"The analysis showed a substantially lower observed unit cost for the larger
+purchase group. I would use this as evidence for further purchasing analysis,
+while checking inventory capacity and demand before increasing order sizes."
+
+
+============================================================
+16. BUSINESS FINDING: UNSOLD INVENTORY
+============================================================
+
+Reported unsold inventory capital:
+
+$2.71M.
+
+Business meaning:
+
+Slow-moving inventory can tie up working capital and increase storage/holding
+costs.
+
+Possible actions:
+
+- Reduce future purchase quantities
+- Review reorder levels
+- Run clearance promotions
+- Investigate products/vendors associated with slow movement
+
+
+============================================================
+17. PROFIT MARGIN COMPARISON
+============================================================
+
+Top-performing vendors:
+
+95% confidence interval:
+30.74% to 31.61%
+
+Mean:
+31.17%
+
+Low-performing vendors:
+
+95% confidence interval:
+40.48% to 42.62%
+
+Mean:
+41.55%
+
+Key observation:
+
+The lower-sales vendor group has higher average margin in the reported analysis.
+
+Business interpretation:
+
+Some vendors may have strong unit economics but weak sales volume.
+
+Possible actions:
+- Review pricing
+- Improve distribution
+- Increase marketing
+- Investigate whether high pricing is limiting volume
+
+
+============================================================
+18. HYPOTHESIS TESTING
+============================================================
+
+Null hypothesis H0:
+There is no significant difference in profit margins between top- and
+low-performing vendor groups.
+
+Alternative hypothesis H1:
+There is a significant difference in profit margins between the two groups.
+
+Reported result:
+Reject H0.
+
+Meaning:
+The analysis found evidence that the groups have different profit-margin
+behavior.
+
+Interview answer:
+
+"I used hypothesis testing to check whether the observed margin difference
+between the vendor groups could reasonably be explained by sampling variation.
+The reported test rejected the null hypothesis, so the analysis supports a
+difference in the groups' profit-margin behavior."
+
+
+============================================================
+19. POWER BI REPORT
+============================================================
+
+The Power BI dashboard focuses on:
+
+- Total Sales
+- Total Purchase
+- Gross Profit
+- Gross Margin %
+- Unsold Capital
+- Vendor sales
+- Product sales
+- Stock turnover
+- Purchase contribution
+- Sales vs profitability
+- Target brands
+
+The dashboard is not the analysis itself.
+
+It is the reporting layer used to communicate the analysis and support
+investigation.
+
+
+============================================================
+20. HOW TO EXPLAIN THE PROJECT AS PROBLEM SOLVING
+============================================================
+
+Bad explanation:
+
+"I made a dashboard with cards and charts."
+
+Better:
+
+"The business needed to understand vendor profitability, purchasing
+concentration, and inventory efficiency. I prepared the data in MySQL,
+validated and explored it in Python, then used DAX and Power BI to turn the
+analysis into an interactive reporting layer."
+
+
+============================================================
+21. COMMON RECRUITER QUESTION: WHAT DID YOU PERSONALLY DO?
+============================================================
+
+Answer:
+
+"I worked through the project pipeline from database preparation to analysis
+and reporting. I loaded and queried the source data in MySQL, performed data
+quality checks and EDA in Python, calculated business metrics and statistical
+tests, and built the Power BI reporting layer using DAX."
+
+
+============================================================
+22. COMMON QUESTION: WHY MYSQL?
+============================================================
+
+Answer:
+
+"I used MySQL as the database layer because the source contained millions of
+sales and purchase records across multiple related tables. It allowed me to
+store the data and perform filtering, joins and aggregations before bringing
+smaller analytical results into Python and Power BI."
+
+
+============================================================
+23. COMMON QUESTION: WHY PYTHON?
+============================================================
+
+Answer:
+
+"I used Python mainly for profiling, EDA, correlation analysis and statistical
+testing. I did not need Python to replace SQL; I used the tools for different
+parts of the analysis."
+
+
+============================================================
+24. COMMON QUESTION: WHY POWER BI?
+============================================================
+
+Answer:
+
+"Power BI was used as the business reporting layer. It made the KPIs and
+analysis interactive through filtering, DAX measures and visual exploration."
+
+
+============================================================
+25. COMMON QUESTION: HOW DID YOU HANDLE LARGE DATA?
+============================================================
+
+Answer:
+
+"I kept the large raw datasets in MySQL and used SQL to aggregate or filter
+the data needed for analysis. Python was used on more manageable analytical
+datasets instead of unnecessarily loading the full raw dataset into memory."
+
+
+============================================================
+26. COMMON QUESTION: HOW DID YOU CHECK DATA QUALITY?
+============================================================
+
+Answer:
+
+"I checked row counts, exact duplicates, missing values, data types, numeric
+ranges, dates, business calculations and consistency across related fields.
+For example, I verified that SalesDollars matched SalesQuantity multiplied by
+SalesPrice and that purchase Dollars matched Quantity multiplied by
+PurchasePrice."
+
+
+============================================================
+27. COMMON QUESTION: WHY DID YOU NOT DELETE ALL NULLS?
+============================================================
+
+Answer:
+
+"Because missing values are not automatically errors. I first looked at their
+pattern and business meaning. For example, Approval was missing for most
+invoice records, so replacing those values without understanding the field
+could introduce false information."
+
+
+============================================================
+28. COMMON QUESTION: WHAT IS STOCK TURNOVER?
+============================================================
+
+Answer:
+
+"In this project, stock turnover is Sales Quantity divided by Purchase
+Quantity. It provides a simple view of how sales volume compares with
+purchased quantity. Values below 1 are used in the project to flag slower
+movement."
+
+
+============================================================
+29. COMMON QUESTION: WHAT IS UNSOLD CAPITAL?
+============================================================
+
+Answer:
+
+"In this project, unsold capital is calculated as the difference between
+purchased quantity and sales quantity multiplied by purchase price. It
+estimates the purchase-cost value associated with quantity that has not sold."
+
+
+============================================================
+30. COMMON QUESTION: WHAT IS THE BUSINESS VALUE?
+============================================================
+
+Answer:
+
+"The project helps management focus on four areas: vendor dependency,
+profitability, inventory efficiency, and product opportunities. It can support
+pricing review, supplier diversification, inventory planning and targeted
+marketing decisions."
+
+
+============================================================
+31. COMMON QUESTION: WHAT WAS THE BIGGEST INSIGHT?
+============================================================
+
+Possible answer:
+
+"One important finding was that the top 10 vendors accounted for 65.69% of
+purchase spend. That indicates purchasing concentration and suggests supplier
+dependency should be monitored."
+
+
+============================================================
+32. COMMON QUESTION: WHAT SURPRISED YOU?
+============================================================
+
+Possible answer:
+
+"I found that the low-performing vendor group had a higher average profit
+margin than the top-performing group. That suggests low sales do not
+necessarily mean weak margins. The issue may be volume, pricing, or market
+reach rather than unit profitability alone."
+
+
+============================================================
+33. COMMON QUESTION: WHAT WOULD YOU DO NEXT?
+============================================================
+
+Answer:
+
+"I would investigate vendor and product performance over time, segment vendors
+by sales and margin, examine inventory aging if the data is available, and
+validate purchasing recommendations with demand and supply constraints."
+
+
+============================================================
+34. LIMITATIONS
+============================================================
+
+1. The dataset is observational.
+2. Correlation does not prove causation.
+3. Bulk purchasing findings should not be presented as causal without an
+   experiment or stronger design.
+4. Missing approval information limits analysis of approval behavior.
+5. Inventory turnover in this project is based on quantity relationships and
+   should not be interpreted as a full accounting inventory-turn metric.
+6. Business recommendations are based on the available dataset and may need
+   operational data for root-cause confirmation.
+
+
+============================================================
+35. WHAT NOT TO SAY
+============================================================
+
+Do not say:
+
+- "I proved bulk buying causes lower costs."
+- "Low-performing vendors are bad."
+- "The dashboard proves the root cause."
+- "All NULLs were bad data."
+- "Higher stock turnover always means higher profit."
+- "Correlation means one variable caused the other."
+- "I optimized the company's profit by X%."
+
+Instead say:
+
+- "The analysis showed..."
+- "The data suggests..."
+- "This indicates..."
+- "This is an area to investigate..."
+- "The observed relationship was..."
+- "A business action could be..."
+
+
+============================================================
+36. FINAL PROJECT STORY
+============================================================
+
+Problem:
+Vendor profitability and inventory efficiency were not easy to evaluate from
+separate raw tables.
+
+Approach:
+Loaded raw data into MySQL, validated it, aggregated the large transactional
+tables, then used Python for EDA and statistics.
+
+Analysis:
+Compared vendors, products, purchasing, sales, margins and inventory movement.
+
+BI:
+Built Power BI KPIs and interactive visual analysis.
+
+Findings:
+- 198 low-sales, high-margin brands
+- 65.69% of purchases from top 10 vendors
+- 72% lower observed unit cost in the compared large-order group
+- $2.71M reported unsold inventory capital
+- Statistically different margin behavior between vendor groups
+
+Decision support:
+Pricing review, supplier diversification, purchasing strategy, inventory
+optimization, and vendor growth actions.
+
+
+============================================================
+37. LAST-MINUTE INTERVIEW CHECKLIST
+============================================================
+
+Before the interview, I should be able to explain:
+
+[ ] Business problem
+[ ] Stakeholders
+[ ] Six raw tables
+[ ] Grain of each table
+[ ] Why MySQL
+[ ] Why Python
+[ ] Why Power BI
+[ ] Data validation process
+[ ] Gross Profit
+[ ] Gross Margin %
+[ ] Stock Turnover
+[ ] Unsold Capital
+[ ] Vendor concentration
+[ ] Target Brand logic
+[ ] Bulk purchasing finding
+[ ] Statistical test
+[ ] Confidence interval
+[ ] Key recommendations
+[ ] Limitations
+[ ] What I would improve
+
+
+============================================================
+END
+============================================================
