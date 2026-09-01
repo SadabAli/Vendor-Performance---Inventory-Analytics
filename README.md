@@ -6,6 +6,10 @@ An end-to-end data analysis project using **MySQL, Python, Pandas, Statistical A
 
 The objective is to understand how vendors and products contribute to business performance and identify areas where purchasing, pricing, inventory, and vendor strategy can be improved.
 
+## Dashboard Preview
+<img width="1199" height="677" alt="Screenshot 2026-09-01 221648" src="https://github.com/user-attachments/assets/4b922cd3-8ed3-4433-b0ab-99a41f786b21" />
+
+
 ## Business Questions
 
 1. Which vendors contribute the most to sales and gross profit?
