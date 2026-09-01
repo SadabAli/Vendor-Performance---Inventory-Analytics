@@ -1,0 +1,474 @@
+VENDOR PERFORMANCE & INVENTORY ANALYTICS
+KPI + TECHNICAL REVISION NOTES
+============================================================
+
+1. KPI CHEAT SHEET
+============================================================
+
+Total Sales
+-----------
+SUM(TotalSalesDollars)
+
+Meaning:
+Total sales value.
+
+Business use:
+Measures sales scale and is the denominator for margin calculations.
+
+
+Total Purchase
+--------------
+SUM(TotalPurchaseDollars)
+
+Meaning:
+Total purchasing spend.
+
+Business use:
+Shows how much was spent to acquire inventory/products.
+
+
+Gross Profit
+------------
+Total Sales - Total Purchase
+
+Project-level interpretation:
+Money left after the purchase-cost component used in this analysis.
+
+Business use:
+Profitability before other operating costs.
+
+
+Gross Margin %
+--------------
+Gross Profit / Total Sales × 100
+
+Best business-level calculation:
+SUM(GrossProfit) / SUM(TotalSalesDollars)
+
+Why:
+A weighted business-level margin is more meaningful than simply averaging
+row-level percentages.
+
+
+Unsold Capital
+--------------
+(Purchase Quantity - Sales Quantity) × Purchase Price
+
+Meaning:
+Estimated purchase-cost value tied to quantity not sold.
+
+Business problem:
+Capital may be tied up in slow-moving inventory.
+
+
+Stock Turnover
+--------------
+Sales Quantity / Purchase Quantity
+
+Meaning:
+Sales quantity relative to purchased quantity.
+
+Project threshold:
+< 1 = low stock turnover.
+
+Important:
+This is the project's simplified quantity-based metric, not necessarily a
+full accounting inventory-turn formula.
+
+
+Sales-to-Purchase Ratio
+-----------------------
+Sales Dollars / Purchase Dollars
+
+Meaning:
+Sales value generated relative to purchase spend.
+
+
+Profit Margin
+-------------
+Gross Profit / Sales × 100
+
+Important:
+If Sales = 0, a percentage can become undefined/extreme.
+That is why the EDA observed extreme negative/infinite values before filtering.
+
+
+============================================================
+2. PRODUCT / BRAND LOGIC
+============================================================
+
+TargetBrand = "Yes" when:
+
+Total Sales <= 15th percentile of brand sales
+
+AND
+
+Average Profit Margin >= 85th percentile of brand average margin.
+
+Interpretation:
+
+Low sales + high margin.
+
+Business idea:
+Potential growth opportunity.
+
+Possible actions:
+- Promotion
+- Pricing review
+- Distribution improvement
+- Marketing support
+
+Important:
+This does not prove that a promotion will work.
+
+
+============================================================
+3. VENDOR LOGIC
+============================================================
+
+Low-performing vendor logic:
+
+Stock Turnover < 1
+
+Interpretation:
+Sales quantity is lower than purchase quantity within the project's
+aggregated metric.
+
+Potential problem:
+Slow movement and working capital tied up in inventory.
+
+
+Top vendor:
+Vendor ranked by sales or purchase contribution, depending on the analysis.
+
+
+Purchase Contribution:
+Vendor purchase spend / Total purchase spend × 100.
+
+
+============================================================
+4. EDA NUMBERS TO REMEMBER
+============================================================
+
+Sales rows:
+12.8M+
+
+Purchase rows:
+2.37M+
+
+Exact duplicate rows:
+0 in the six datasets checked.
+
+Missing values:
+- End Inventory City: 1,284
+- Purchase Prices Description: 1
+- Purchase Prices Size: 1
+- Purchase Prices Volume: 1
+- Purchases Size: 3
+- Vendor Invoice Approval: 5,169
+
+Sales validation:
+SalesDollars matched SalesQuantity × SalesPrice within 0.01.
+
+Purchase validation:
+Dollars matched Quantity × PurchasePrice within 0.01.
+
+
+============================================================
+5. KEY FINDINGS
+============================================================
+
+198:
+Low-sales, high-margin brands.
+
+65.69%:
+Share of total purchases contributed by top 10 vendors.
+
+72%:
+Reported lower unit cost for the compared large-order group.
+
+$10.78:
+Observed unit cost for the compared large-order group.
+
+$2.71M:
+Reported unsold inventory capital.
+
+Top vendor group:
+95% CI = 30.74% to 31.61%
+Mean = 31.17%
+
+Low vendor group:
+95% CI = 40.48% to 42.62%
+Mean = 41.55%
+
+
+============================================================
+6. STATISTICS
+============================================================
+
+Null hypothesis:
+No significant difference in profit margins between top- and low-performing
+vendors.
+
+Alternative hypothesis:
+A significant difference exists.
+
+Reported conclusion:
+Reject the null hypothesis.
+
+Interpretation:
+The analysis supports a difference in profit-margin behavior between the two
+groups.
+
+Confidence interval:
+A range used to communicate uncertainty around an estimated group mean.
+
+95% CI in this report:
+Top vendors → 30.74% to 31.61%
+Low vendors → 40.48% to 42.62%
+
+
+============================================================
+7. CORRELATION CHEAT SHEET
+============================================================
+
+Purchase Price vs Sales Dollars
+-0.012
+→ Very weak linear association.
+
+Purchase Price vs Gross Profit
+-0.016
+→ Very weak linear association.
+
+Purchase Quantity vs Sales Quantity
+0.999
+→ Very strong positive association.
+
+Profit Margin vs Sales Price
+-0.179
+→ Negative association.
+
+Stock Turnover vs Gross Profit
+-0.038
+→ Very weak negative association.
+
+Stock Turnover vs Profit Margin
+-0.055
+→ Very weak negative association.
+
+Interview sentence:
+"Correlation helped me identify relationships to investigate. I did not treat
+correlation as proof of causation."
+
+
+============================================================
+8. SQL QUESTIONS TO PRACTICE
+============================================================
+
+1. Find top 10 vendors by sales.
+
+2. Find top 10 vendors by purchase spend.
+
+3. Calculate total sales by brand.
+
+4. Calculate total purchase by vendor.
+
+5. Compare sales and purchase quantities.
+
+6. Calculate gross profit by vendor.
+
+7. Calculate stock turnover by vendor.
+
+8. Find vendors with stock turnover below 1.
+
+9. Calculate purchase contribution by vendor.
+
+10. Compare purchase quantity and purchase price.
+
+11. Find products with zero sales.
+
+12. Find records with missing vendor names.
+
+13. Find vendors with multiple names after TRIM.
+
+14. Check unmatched vendors between purchases and purchase_prices.
+
+15. Check unmatched PONumber values between purchases and vendor_invoice.
+
+
+============================================================
+9. PYTHON QUESTIONS TO PRACTICE
+============================================================
+
+1. How did you check exact duplicates?
+
+Answer:
+df.duplicated().sum()
+
+2. How did you check missing values?
+
+Answer:
+df.isna().sum()
+
+3. How did you inspect data types?
+
+Answer:
+df.dtypes and df.info()
+
+4. How did you validate sales values?
+
+Answer:
+SalesQuantity × SalesPrice was compared with SalesDollars.
+
+5. How did you validate purchase values?
+
+Answer:
+Quantity × PurchasePrice was compared with Dollars.
+
+6. Why use Pandas?
+
+Answer:
+For profiling, EDA, statistical analysis and data manipulation.
+
+7. Why not load every raw row into Python?
+
+Answer:
+The raw sales and purchase tables are large, so SQL is used to reduce data
+before Python analysis when possible.
+
+
+============================================================
+10. POWER BI / DAX QUESTIONS
+============================================================
+
+Q: Why use a measure for Gross Margin %?
+
+A:
+Because the business-level margin should respond correctly to filter context and
+should be calculated from aggregate gross profit and aggregate sales.
+
+Q: Why not SUM a percentage column?
+
+A:
+Percentages should not be added across rows.
+
+Q: What is DAX?
+
+A:
+A calculation language used in Power BI for measures, calculated columns and
+calculated tables.
+
+Q: Calculated column vs measure?
+
+A:
+A calculated column is evaluated row by row and stored in the model.
+A measure is calculated dynamically based on filter context.
+
+Q: Why is Gross Margin % better as a measure?
+
+A:
+Because it should change correctly when the user filters vendors, products or
+other dimensions.
+
+
+============================================================
+11. POWER BI BUSINESS STORY
+============================================================
+
+Overview:
+How healthy is the vendor business?
+
+Vendor performance:
+Who drives sales and purchasing?
+
+Product analysis:
+Which products have volume and/or margin opportunities?
+
+Inventory:
+Where is capital tied up?
+
+Purchase concentration:
+How dependent are we on a small number of vendors?
+
+Profitability:
+Are high-sales vendors also high-margin vendors?
+
+
+============================================================
+12. PROJECT LIMITATIONS
+============================================================
+
+- Observational dataset.
+- No causal conclusion from correlation.
+- Bulk purchasing analysis is not a randomized experiment.
+- Inventory turnover is simplified.
+- Missing approval data limits approval analysis.
+- Operational/root-cause data is not available for every issue.
+
+
+============================================================
+13. RAPID-FIRE DEFINITIONS
+============================================================
+
+AOV:
+Average Order Value.
+
+Gross Profit:
+Sales minus relevant purchase cost.
+
+Gross Margin:
+Gross Profit as a percentage of sales.
+
+Stock Turnover:
+Sales quantity divided by purchase quantity in this project.
+
+Unsold Capital:
+Estimated purchase-cost value of unsold quantity.
+
+Purchase Contribution:
+Vendor share of total purchasing spend.
+
+Pareto:
+Analysis that ranks contributors and examines cumulative contribution.
+
+RCA:
+Root Cause Analysis.
+
+Correlation:
+Measure of linear association, not causation.
+
+Hypothesis Test:
+Statistical method used to evaluate evidence against a null hypothesis.
+
+Confidence Interval:
+Range describing uncertainty around an estimated parameter.
+
+
+============================================================
+14. FINAL MEMORY MAP
+============================================================
+
+Vendor problem
+    ↓
+Sales + Purchase + Inventory data
+    ↓
+MySQL
+    ↓
+SQL aggregation
+    ↓
+Python EDA
+    ↓
+Correlation + Statistics
+    ↓
+Business metrics
+    ↓
+Power BI + DAX
+    ↓
+Vendor / Product / Inventory insights
+    ↓
+Business recommendations
+
+
+============================================================
+END
+============================================================
